@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#08101f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>Simulador de teoría de cola</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="js/ui.js"></script>
+</head>
+<body>
+<div class="theme-toggle-wrap">
+  <label class="theme-toggle">
+    <input type="checkbox" id="themeSwitch">
+    <span class="theme-toggle-icon" id="themeIcon">🌙</span>
+  </label>
+</div>
+  <header class="hero">
+    <div class="overlay"></div>
+    <div class="hero-content">
+      <div class="top-actions">
+        <p class="badge" id="badgeModelo">Teoría de cola · Simulador interactivo</p>
+      </div>
+
+      <h1 id="mainTitle">Simulador de teoría de cola</h1>
+      <p class="subtitle" id="mainSubtitle">
+        Selecciona un modelo desde el menú desplegable y analiza su comportamiento,
+        métricas, costos y rendimiento de forma dinámica.
+      </p>
+
+      <div class="hero-tags" id="heroTags">
+        <span>Modelos clásicos</span>
+        <span>Cálculo dinámico</span>
+        <span>Análisis visual</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- INFORMACIÓN DEL MODELO -->
+    <section class="card intro">
+      <div class="section-head">
+        <div>
+          <h2 id="descTitle">Descripción del modelo</h2>
+          <p class="section-text" id="descText">
+            Este simulador permite analizar distintos modelos de teoría de colas,
+            comparar sus métricas y observar su comportamiento de forma visual.
+          </p>
+        </div>
+        <div class="mini-badge" id="miniBadgeModelo">Modelo general</div>
+      </div>
+
+      <div class="info-grid" id="infoGrid">
+        <div class="info-box">
+          <span>Modelo</span>
+          <strong id="infoModelo">Población finita</strong>
+        </div>
+        <div class="info-box">
+          <span>Servidores</span>
+          <strong id="infoServidores">2</strong>
+        </div>
+        <div class="info-box">
+          <span>Entrada</span>
+          <strong id="infoEntrada">Población limitada</strong>
+        </div>
+        <div class="info-box">
+          <span>Servicio</span>
+          <strong id="infoServicio">Exponencial</strong>
+        </div>
+        <div class="info-box">
+          <span>Condición</span>
+          <strong id="infoCondicion">s ≤ N</strong>
+        </div>
+        <div class="info-box">
+          <span>Capacidad</span>
+          <strong id="infoCapacidad">Finita</strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTADOS PRINCIPALES -->
+    <section class="card results">
+      <div class="section-head">
+        <div>
+          <h2>Resultados del modelo</h2>
+          <p class="section-text">Resumen principal del comportamiento del sistema.</p>
+        </div>
+      </div>
+
+     <div class="results-grid">
+
+      <div class="result-box accent-blue">
+        <span id="labelLq">Clientes en espera (Lq)</span>
+        <strong id="lqResult">0.0000</strong>
+      </div>
+
+      <div class="result-box accent-gold">
+        <span id="labelTime">Tiempo perdido por día</span>
+        <strong id="timeResult">0.00 min</strong>
+      </div>
+
+      <div class="result-box accent-cyan">
+        <span id="labelWq">Tiempo medio de espera (Wq)</span>
+        <strong id="wqResult">0.0000 h</strong>
+      </div>
+
+      <div class="result-box accent-green">
+        <span id="labelUtil">Utilización del sistema</span>
+        <strong id="utilResult">0.00%</strong>
+      </div>
+
+                  
+      <!-- probabilidad -->
+      <div id="bloqueProbEspera" class="result-box">
+        <span>Probabilidad de espera</span>
+        <strong id="probEsperaResult">--</strong>
+      </div>
+
+      <div id="bloqueCondicion" class="result-box">
+        <span>Condición (≤ 50%)</span>
+        <strong id="cumpleResult">--</strong>
+      </div>
+
+      <!-- interpretación -->
+      <div class="interpretation" id="interpretation">
+        Aquí aparecerá la interpretación automática del sistema.
+      </div>
+
+    </div>
+    
+
+    <section class="dual-layout">
+
+      <!-- PANEL IZQUIERDO -->
+      <section class="card simulator compact-panel">
+        <div class="section-head">
+          <div>
+            <h2>Simulador interactivo</h2>
+            <p class="section-text">
+              Modifica los datos y selecciona el modelo desde el menú desplegable.
+            </p>
+          </div>
+          <div class="status-chip" id="statusChip">Listo</div>
+        </div>
+
+        <div class="controls enhanced-controls compact-controls">
+
+          <!-- SELECTOR DE MODELO -->
+          <div class="control-card">
+            <label for="modelo">Tipo de modelo</label>
+            <div class="input-row">
+              <select id="modelo">
+                <option value="finito" selected>Población finita</option>
+                <option value="mm1">M/M/1</option>
+                <option value="mms">M/M/s</option>
+                <option value="mmc">M/M/c</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- CAMPO N -->
+          <div class="control-card" id="cardN">
+            <label for="N" id="labelN">Población / Clientes fuente (N)</label>
+            <div class="input-row">
+              <input type="number" id="N" value="6" min="1" max="50" />
+              <span class="value-pill" id="NValue">6</span>
+            </div>
+            <input type="range" id="NRange" min="1" max="50" value="6" step="1" />
+          </div>
+
+          <!-- CAMPO S -->
+          <div class="control-card" id="cardS">
+            <label for="s" id="labelS">Servidores / Canales (s)</label>
+            <div class="input-row">
+              <input type="number" id="s" value="2" min="1" max="20" />
+              <span class="value-pill" id="sValue">2</span>
+            </div>
+            <input type="range" id="sRange" min="1" max="20" value="2" step="1" />
+          </div>
+
+          <!-- LAMBDA -->
+          <div class="control-card">
+            <label for="lam" id="labelLam">Tasa de llegada λ</label>
+            <div class="input-row">
+              <input type="number" id="lam" value="0.5" min="0.1" max="10" step="0.1" />
+              <span class="value-pill" id="lamValue">0.5</span>
+            </div>
+            <input type="range" id="lamRange" min="0.1" max="10" value="0.5" step="0.1" />
+          </div>
+
+          <!-- MU -->
+          <div class="control-card">
+            <label for="mu" id="labelMu">Tasa de servicio μ</label>
+            <div class="input-row">
+              <input type="number" id="mu" value="3" min="0.1" max="15" step="0.01" />
+              <span class="value-pill" id="muValue">3.0</span>
+            </div>
+            <input type="range" id="muRange" min="0.1" max="15" value="3" step="0.01" />
+          </div>
+
+          <!-- HORAS -->
+          <div class="control-card">
+            <label for="horas">Horas por día</label>
+            <div class="input-row">
+              <input type="number" id="horas" value="8" min="1" max="24" />
+              <span class="value-pill" id="horasValue">8</span>
+            </div>
+            <input type="range" id="horasRange" min="1" max="24" value="8" step="1" />
+          </div>
+
+          <!-- COSTO ESPERA -->
+          <div class="control-card cost-card">
+            <label for="costoEspera">Costo por hora de espera</label>
+            <div class="input-row">
+              <input type="number" id="costoEspera" value="30" min="0" max="1000" step="1" />
+              <span class="value-pill" id="costoEsperaValue">30</span>
+            </div>
+            <input type="range" id="costoEsperaRange" min="0" max="1000" value="30" step="1" />
+          </div>
+
+          <!-- COSTO SERVIDOR -->
+          <div class="control-card cost-card">
+            <label for="costoTerminal" id="labelCostoServidor">Costo por servidor por día</label>
+            <div class="input-row">
+              <input type="number" id="costoTerminal" value="50" min="0" max="1000" step="1" />
+              <span class="value-pill" id="costoTerminalValue">50</span>
+            </div>
+            <input type="range" id="costoTerminalRange" min="0" max="1000" value="50" step="1" />
+          </div>
+        </div>
+
+        <div class="quick-summary" id="quickSummary">
+          El modelo se actualiza automáticamente cuando cambias cualquier dato.
+        </div>
+      </section>
+
+      <!-- PANEL DERECHO -->
+      <section class="card charts compact-panel">
+        <div class="section-head">
+          <div>
+            <h2>Análisis visual</h2>
+            <p class="section-text">
+              Tablas y gráficos del comportamiento del sistema.
+            </p>
+          </div>
+        </div>
+
+        <div class="chart-grid single-column">
+          <article class="chart-box compact-chart-box">
+            <div class="chart-top">
+              <div>
+                <h3 class="chart-title">Métricas principales</h3>
+                <p class="chart-subtitle">Valores clave del sistema</p>
+              </div>
+            </div>
+
+            <div class="table-wrapper elevated-table elevated-top-table">
+              <table class="data-table" id="metricasTable">
+                <thead>
+                  <tr>
+                    <th>Métrica</th>
+                    <th>Valor</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <div class="chart-canvas-wrap compact-chart">
+              <canvas id="metricasChart"></canvas>
+            </div>
+          </article>
+
+          <article class="chart-box compact-chart-box">
+            <div class="chart-top">
+              <div>
+                <h3 class="chart-title">Probabilidades de estado</h3>
+                <p class="chart-subtitle">Distribución del sistema</p>
+              </div>
+            </div>
+
+            <div class="table-wrapper elevated-table elevated-top-table">
+              <table class="data-table" id="probTable">
+                <thead>
+                  <tr>
+                    <th>Estado</th>
+                    <th>Probabilidad</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+
+            <div class="chart-canvas-wrap compact-chart">
+              <canvas id="probChart"></canvas>
+            </div>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <!-- COSTOS -->
+    <section class="card costs">
+      <div class="section-head">
+        <div>
+          <h2>Análisis de costos</h2>
+          <p class="section-text">
+            Relación entre tiempo de espera y costo de operación del sistema.
+          </p>
+        </div>
+        <div class="mini-badge">Costos</div>
+      </div>
+
+      <div class="costs-grid">
+        <div class="result-box accent-cyan">
+          <span>Costo de espera aproximado</span>
+          <strong id="costoEsperaResult">$0.00</strong>
+        </div>
+
+        <div class="result-box accent-blue">
+          <span id="labelCostoSistema">Costo de servidores</span>
+          <strong id="costoTerminalResult">$0.00</strong>
+        </div>
+
+        <div class="result-box accent-gold">
+          <span>Costo total estimado</span>
+          <strong id="costoTotalResult">$0.00</strong>
+        </div>
+      </div>
+
+      <div class="cost-note" id="costNote">
+        Esta sección representa una extensión económica del modelo.
+      </div>
+    </section>
+
+    <!-- OPTIMIZACIÓN -->
+    <section class="card optimization" id="optimizationSection">
+      <div class="section-head">
+        <div>
+          <h2 id="optTitle">Optimización automática</h2>
+          <p class="section-text" id="optText">
+            Se evalúan configuraciones posibles de servidores para encontrar el costo total mínimo.
+          </p>
+        </div>
+        <div class="mini-badge">Optimización</div>
+      </div>
+
+      <div class="costs-grid">
+        <div class="result-box accent-green">
+          <span id="labelOptimoS">Servidores óptimos</span>
+          <strong id="optimoS">--</strong>
+        </div>
+
+        <div class="result-box accent-cyan">
+          <span>Costo mínimo diario</span>
+          <strong id="costoMinimo">--</strong>
+        </div>
+
+        <div class="result-box accent-gold">
+          <span>Ahorro frente al actual</span>
+          <strong id="ahorro">--</strong>
+        </div>
+      </div>
+
+      <div class="table-wrapper elevated-table elevated-top-table optimization-table-wrap">
+        <table class="data-table optimization-table">
+          <thead>
+            <tr>
+              <th id="thServidores">Servidores</th>
+              <th>Lq</th>
+              <th>Wq</th>
+              <th>Costo espera</th>
+              <th>Costo servidores</th>
+              <th>Costo total</th>
+            </tr>
+          </thead>
+          <tbody id="tablaOptimos"></tbody>
+        </table>
+      </div>
+
+      <div class="quick-summary" id="optimizacionResumen">
+        Aquí aparecerá la mejor configuración según el costo total.
+      </div>
+    </section>
+
+    <section class="card academic">
+      <h2>Aplicación académica</h2>
+      <p id="academicText">
+        Este simulador permite comparar varios modelos clásicos de teoría de colas
+        y analizar su impacto operativo y económico.
+      </p>
+    </section>
+  </main>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("service-worker.js").catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>

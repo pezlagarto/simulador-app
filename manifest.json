@@ -1,0 +1,25 @@
+{
+  "name": "Simulador de teoría de cola",
+  "short_name": "Colas",
+  "description": "Simulador académico de teoría de colas con métricas, gráficos y costos.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#08101f",
+  "theme_color": "#08101f",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
