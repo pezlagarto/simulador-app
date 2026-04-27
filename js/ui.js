@@ -1,6 +1,5 @@
 import { calcularMM1 } from "./modelos/mm1.js";
 import { calcularMMS } from "./modelos/mms.js";
-import { calcularMMC } from "./modelos/mmc.js";
 import { calcularFinito } from "./modelos/finito.js";
 
 import { calcularCostos, evaluarConfiguracionesOptimas } from "./costos.js";
@@ -121,31 +120,6 @@ function actualizarTextosModelo(modelo) {
     return;
   }
 
-  if (modelo === "mmc") {
-    subtitle.textContent = "Modelo M/M/c con varios canales de servicio.";
-    tags.innerHTML = `
-      <span>c servidores</span>
-      <span>Cola infinita</span>
-      <span>λ &lt; cμ</span>
-    `;
-    miniBadge.textContent = "M/M/c";
-    descText.textContent = "Sistema con varios canales de atención y distribución exponencial.";
-
-    if (infoModelo) infoModelo.textContent = "M/M/c";
-    if (infoServidores) infoServidores.textContent = "Múltiples";
-    if (infoEntrada) infoEntrada.textContent = "Infinita";
-    if (infoServicio) infoServicio.textContent = "Exponencial";
-    if (infoCondicion) infoCondicion.textContent = "λ < cμ";
-    if (infoCapacidad) infoCapacidad.textContent = "Infinita";
-
-    cardN?.classList.add("is-hidden");
-    cardS?.classList.remove("is-hidden");
-    optimizationSection?.classList.add("is-hidden");
-    if (labelCostoServidor) labelCostoServidor.textContent = "Costo por servidor por día";
-    if (labelCostoSistema) labelCostoSistema.textContent = "Costo de servidores";
-    return;
-  }
-
   subtitle.textContent = "Modelo de población finita para analizar espera, utilización y costos.";
   tags.innerHTML = `
     <span>Población finita</span>
@@ -196,18 +170,7 @@ function actualizarTablas(resultado) {
       <tr><td>Tiempo promedio en cola (Wq)</td><td>${formatearNumero(resultado.Wq)} h</td></tr>
       <tr><td>Tiempo promedio en sistema (W)</td><td>${formatearNumero(resultado.W)} h</td></tr>
     `;
-  } else if (resultado.modelo === "mmc") {
-    metricasBody.innerHTML = `
-      <tr><td>Modelo</td><td>M/M/c</td></tr>
-      <tr><td>Canales</td><td>${resultado.servidores}</td></tr>
-      <tr><td>Utilización (ρ)</td><td>${formatearNumero(resultado.utilizacion, 4)}</td></tr>
-      <tr><td>Probabilidad de sistema vacío (P0)</td><td>${formatearNumero(resultado.P0, 4)}</td></tr>
-      <tr><td>Número promedio en cola (Lq)</td><td>${formatearNumero(resultado.Lq)}</td></tr>
-      <tr><td>Número promedio en sistema (L)</td><td>${formatearNumero(resultado.L)}</td></tr>
-      <tr><td>Tiempo promedio en cola (Wq)</td><td>${formatearNumero(resultado.Wq)} h</td></tr>
-      <tr><td>Tiempo promedio en sistema (W)</td><td>${formatearNumero(resultado.W)} h</td></tr>
-    `;
-  } else {
+   } else {
     metricasBody.innerHTML = `
       <tr><td>Modelo</td><td>Población finita</td></tr>
       <tr><td>Población (N)</td><td>${resultado.N}</td></tr>
@@ -382,13 +345,6 @@ function calcularSegunModelo(valores) {
     if (!Number.isFinite(s) || s <= 0) return { error: "En M/M/s, s debe ser mayor que 0." };
     const res = calcularMMS(lam, mu, s, horas);
     if (!res) return { error: "En M/M/s debe cumplirse λ < sμ." };
-    return { resultado: res, servidoresUsados: s };
-  }
-
-  if (modelo === "mmc") {
-    if (!Number.isFinite(s) || s <= 0) return { error: "En M/M/c, c debe ser mayor que 0." };
-    const res = calcularMMC(lam, mu, s, horas);
-    if (!res) return { error: "En M/M/c debe cumplirse λ < cμ." };
     return { resultado: res, servidoresUsados: s };
   }
 

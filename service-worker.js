@@ -9,7 +9,6 @@ const APP_FILES = [
   "./js/costos.js",
   "./js/modelos/mm1.js",
   "./js/modelos/mms.js",
-  "./js/modelos/mmc.js",
   "./js/modelos/finito.js",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
